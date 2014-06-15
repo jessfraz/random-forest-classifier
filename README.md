@@ -13,7 +13,7 @@ RandomForestClassifier
 
 ## Goals
 
-**MOST OF THESE DON"T WORK THEY ARE JUST A GOAL I SET**
+**MOST OF THESE DON'T WORK THEY ARE JUST A GOAL I SET**
 
 ### Parameters
 
