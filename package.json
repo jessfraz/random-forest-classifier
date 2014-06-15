@@ -1,0 +1,28 @@
+{
+  "name": "random-forest-classifier",
+  "version": "0.0.1",
+  "description": "A random forest classifier. A random forest is a meta estimator that fits a number of decision tree classifiers on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tests/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jfrazelle/random-forest-classifier"
+  },
+  "keywords": [
+    "random forest",
+    "machine learning",
+    "classifier"
+  ],
+  "author": "Jessica Frazelle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jfrazelle/random-forest-classifier/issues"
+  },
+  "homepage": "https://github.com/jfrazelle/random-forest-classifier",
+  "dependencies": {
+    "async": "^0.9.0",
+    "underscore": "^1.6.0"
+  }
+}
