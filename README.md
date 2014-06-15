@@ -11,11 +11,15 @@ RandomForestClassifier
 ```
 
 
+## Goals
+
+**MOST OF THESE DON"T WORK THEY ARE JUST A GOAL I SET**
+
 ### Parameters
 
 **`n_estimators`:** *integer, optional (default=10)* The number of trees in the forest.
 
-**`criterion`:** *string, optional (default=”gini”)* The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain. Note: this parameter is tree-specific.
+**`criterion`:** *string, optional (default=“entropy”)* The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain. Note: this parameter is tree-specific.
 
 **`max_features`:** *int, float, string or None, optional (default=”auto”)* The number of features to consider when looking for the best split:
 - If int, then consider max_features features at each split.
