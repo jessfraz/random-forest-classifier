@@ -30,7 +30,7 @@ RandomForestClassifier
 - If None, then max_features=n_features.
 Note: the search for a split does not stop until at least one valid partition of the node samples is found, even if it requires to effectively inspect more than max_features features. Note: this parameter is tree-specific.
 
-**`max_depth`:** *integer or None, optional (default=None) The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. Ignored if max_samples_leaf is not None. Note: this parameter is tree-specific.
+**`max_depth`:** *integer or None, optional (default=None)* The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. Ignored if max_samples_leaf is not None. Note: this parameter is tree-specific.
 
 **`min_samples_split`:** *integer, optional (default=2)* The minimum number of samples required to split an internal node. Note: this parameter is tree-specific.
 
