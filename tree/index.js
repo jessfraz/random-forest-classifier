@@ -57,7 +57,8 @@ var DecisionTreeClassifier = function(params) {
 
 DecisionTreeClassifier.prototype = {
     fit: function(data, features, y) {
-      return utils.C45(data, features, y);
+      var major_label = utils.GetDominate(_.pluck(data, y));
+      return utils.C45(data, features, y, major_label);
     },
     predict: function(sample) {
         var root = this.model;
@@ -71,13 +72,13 @@ DecisionTreeClassifier.prototype = {
             if (root.type === 'feature_real') {
                 var sample_value = parseFloat(sample[attr]);
                 if (sample_value <= root.cut){
-                    child_node = root.children[1];
+                    child_node = root.vals[1];
                 } else {
-                    child_node = root.children[0];
+                    child_node = root.vals[0];
                 }
             } else {
                 var sample_value = sample[attr];
-                var child_node = _.detect(root.children, function(x) {
+                var child_node = _.detect(root.vals, function(x) {
                     return x.name == sample_value;
                 });
             }

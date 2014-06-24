@@ -100,7 +100,7 @@ var Average = function(v){
 }
 
 
-var C45 = function(data, features, y){
+var C45 = function(data, features, y, major_label){
     var tree = {};
     var y_values = _.pluck(data, y);
 
@@ -114,7 +114,16 @@ var C45 = function(data, features, y){
         };
     }
 
-    if (features === true || y_values.length == 0){
+    if (y_values.length == 0){
+        return {
+            type:"result",
+            val: major_label,
+            name: major_label,
+            alias: major_label + RID()
+        };
+    }
+
+    if (features === true){
         // end of branch
         // returning the most dominate feature
         var dominate_y = GetDominate(y_values);
@@ -143,7 +152,7 @@ var C45 = function(data, features, y){
             alias: best_feature + RID(),
             cut: best_feature_data.cut,
             type: "feature_real",
-            children: []
+            vals: []
         };
 
         if (feature_remains.length == 0){
@@ -156,8 +165,8 @@ var C45 = function(data, features, y){
             alias: '>' + tree.cut.toString() + RID(),
             type: "feature_value"
         };
-        child_node_r.child = C45(rightCutData, feature_remains, y);
-        tree.children.push(child_node_r);
+        child_node_r.child = C45(rightCutData, feature_remains, y, major_label);
+        tree.vals.push(child_node_r);
 
         var leftCutData = data.filter(function(x){return x[best_feature] <= best_feature_data.cut});
         var child_node_l = {
@@ -165,18 +174,18 @@ var C45 = function(data, features, y){
             alias: '<=' + tree.cut.toString() + RID(),
             type: "feature_value"
         };
-        child_node_l.child = C45(leftCutData, feature_remains, y);
-        tree.children.push(child_node_l);
+        child_node_l.child = C45(leftCutData, feature_remains, y, major_label);
+        tree.vals.push(child_node_l);
     } else {
         var possibilities = possibilities = _.unique(_.pluck(data, best_feature));
         tree = {
             name: best_feature,
             alias: best_feature + RID(),
             type: "feature",
-            children: []
+            vals: []
         };
 
-        tree.children = _.map(possibilities, function(v){
+        tree.vals = _.map(possibilities, function(v){
             var data_modified = data.filter(function(x) { return x[best_feature] == v; });
 
             var branch = {
@@ -188,7 +197,7 @@ var C45 = function(data, features, y){
             if (feature_remains.length == 0){
                 feature_remains = true;
             }
-            branch.child = C45(data_modified, feature_remains, y);
+            branch.child = C45(data_modified, feature_remains, y, major_label);
 
             return branch;
         });
@@ -237,7 +246,7 @@ var ID3 = function(data, features, y){
     };
 
     // create the branch of the tree
-    tree.children = _.map(possibilities, function(v){
+    tree.vals = _.map(possibilities, function(v){
         var data_modified = data.filter(function(x) { return x[best_feature] == v; });
 
         var branch = {
@@ -255,7 +264,43 @@ var ID3 = function(data, features, y){
     });
 
     return tree;
-}
+};
+
+var recursived3ifyModel = function(model){
+    var new_model = {};
+    if (model && model.children){
+        for (var j=0; j < model.children.length; j++){
+            var cleanname = "";
+            if (model.children[j].alias.indexOf("<=") === 0){
+                cleanname += "<= ";
+            } else if (model.children[j].alias.indexOf(">") === 0){
+                cleanname += "> ";
+            }
+            cleanname += model.children[j].name;
+            if (model.children[j].child && model.children[j].child.vals) {
+                model.children[j].children = model.children[j].child.vals;
+                model.children[j] = recursived3ifyModel(model.children[j]);
+            } else if (model.children[j].child && model.children[j].child.type == "result"){
+                cleanname += " " +model.children[j].child.val;
+            }
+            model.children[j].name = cleanname;
+        }
+    }
+
+    return model;
+};
+
+var d3ifyModel = function(trees){
+    var models = [];
+    for (var i=0; i< trees.length; i++){
+        models[i] = {
+            name: trees[i].model.name,
+            children: trees[i].model.vals
+        }
+        models[i] = recursived3ifyModel(models[i]);
+    }
+    return models
+};
 
 
 module.exports.ID3 = ID3;
@@ -263,3 +308,4 @@ module.exports.C45 = C45;
 module.exports.GetType = GetType;
 module.exports.GetDominate = GetDominate;
 module.exports.Average = Average;
+module.exports.d3ifyModel = d3ifyModel;
