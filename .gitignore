@@ -98,5 +98,7 @@ coverage.xml
 *.log
 *.pot
 
+sample-app
+
 # Sphinx documentation
 docs/_build/

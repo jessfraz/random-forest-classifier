@@ -57,70 +57,34 @@ var DecisionTreeClassifier = function(params) {
 
 DecisionTreeClassifier.prototype = {
     fit: function(data, features, y) {
-        var unique_y_values = _.unique(_.pluck(data, y));
-
-        // last leaf
-        if (unique_y_values.length == 1){
-            return {
-                type: "result",
-                val: unique_y_values[0],
-                name: unique_y_values[0],
-                alias: unique_y_values[0] + utils.RID()
-            };
-        }
-
-        if (features === true){
-            // end of branch
-            // returning the most dominate feature
-            var dominate_y = utils.GetDominate(unique_y_values);
-            return {
-                type:"result",
-                val: dominate_y,
-                name: dominate_y,
-                alias: dominate_y + utils.RID()
-            };
-        }
-
-        if (!features || features.length == 0){
-            // get all the features that are not y
-            features = _.reject(_.keys(data), function(f){ return f == y; });
-        }
-
-        var best_feature = _.max(features, function(f){return utils.Gain(data, f, y); });
-
-        var feature_remains = _.without(features, best_feature);
-
-        var possibilities = _.unique(_.pluck(data, best_feature));
-
-        var tree = {
-            name: best_feature,
-            alias: best_feature + utils.RID(),
-            type: "feature"
-        };
-
-        // create the branch of the tree
-        tree.vals = _.map(possibilities, function(v){
-            var data_modified = data.filter(function(x) { return x[best_feature] == v; });
-
-            var branch = {
-                name: v,
-                alias: v + utils.RID(),
-                type: "feature_value"
-            };
-
-            // recursive create children
-            var child = new DecisionTreeClassifier({});
-            if (feature_remains.length == 0){
-                feature_remains = true;
-            }
-            branch.child = child.fit(data_modified, feature_remains, y);
-
-            return branch;
-        });
-
-        return tree;
+      return utils.C45(data, features, y);
     },
-    predict: function(X, value) {
+    predict: function(sample) {
+        var root = this.model;
+
+        if (typeof root === 'undefined') {
+            return 'null';
+        }
+
+        while (root.type !== "result") {
+            var attr = root.name;
+            if (root.type === 'feature_real') {
+                var sample_value = parseFloat(sample[attr]);
+                if (sample_value <= root.cut){
+                    child_node = root.children[1];
+                } else {
+                    child_node = root.children[0];
+                }
+            } else {
+                var sample_value = sample[attr];
+                var child_node = _.detect(root.children, function(x) {
+                    return x.name == sample_value;
+                });
+            }
+            root = child_node.child;
+        }
+
+        return root.val;
     }
 };
 

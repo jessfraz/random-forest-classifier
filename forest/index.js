@@ -61,11 +61,12 @@
 */
 
 var async = require('async'),
+    utils = require('../utilities'),
     DecisionTreeClassifier = require('../tree');
 
 var RandomForestClassifier = function(params) {
     this.n_estimators = params.n_estimators || 10;
-    this.criterion = params.criterion || "gini";
+    this.criterion = params.criterion || "entropy";
     this.max_features = params.max_features || "auto";
     this.min_samples_split = params.min_samples_split || 2;
     this.min_samples_leaf = params.min_samples_leaf || 1;
@@ -74,8 +75,9 @@ var RandomForestClassifier = function(params) {
 
 var _parallel_build_tree = function(data, features, y) {
     return function (n, next) {
-        var tree = new DecisionTreeClassifier({});
-        var CLF = tree.fit(data, features, y);
+        var CLF = new DecisionTreeClassifier({});
+        var tree = CLF.fit(data, features, y);
+        CLF.model = tree;
         next(null, CLF);
     };
 };
@@ -86,12 +88,25 @@ RandomForestClassifier.prototype = {
         // this is done async because it can be independent
         async.times(this.n_estimators, _parallel_build_tree(data, features, y), function(err, trees) {
             if (err) { console.log(err); }
-            this.trees = trees;
 
             cb(err, trees);
         });
     },
-    predict: function() {
+    predict: function(data, trees) {
+        this.trees = trees;
+        var probabilities = new Array(data.length);
+        for (var i=0; i < data.length ;i++) {
+            var dec = [];
+            for (var j=0; j < this.n_estimators; j++){
+                dec.push(trees[i].predict(data[i]));
+            }
+            if (utils.GetType(dec[0]) == "string"){
+                probabilities[i] = utils.GetDominate(dec);
+            } else {
+                probabilities[i] = utils.Average(dec);
+            }
+        }
+        return probabilities;
     }
 };
 
