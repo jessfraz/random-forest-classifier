@@ -4,9 +4,16 @@ A random forest classifier. A random forest is a meta estimator that fits a numb
 
 Modeled after [scikit-learn's RandomForestClassifier](http://scikit-learn.org/dev/modules/generated/sklearn.ensemble.RandomForestClassifier.html).
 
+### Installation
+```bash
+$ npm install random-forest-classifier
+```
+
+### Example
+
 ```javascript
 var fs = require('fs'),
-    RandomForestClassifier = require('../index.js').RandomForestClassifier;
+    RandomForestClassifier = require('random-forest-classifier').RandomForestClassifier;
 
 var data = [
   {
@@ -62,6 +69,64 @@ rf.fit(data, null, "species", function(err, trees){
 });
 ```
 
-### Parameters
+### Usage
+
+#### Options
 
 **`n_estimators`:** *integer, optional (default=10)* The number of trees in the forest.
+
+**example**
+
+```javascript
+var rf = new RandomForestClassifier({
+    n_estimators: 20
+});
+```
+
+##### `rf.fit(data, features, target, function(err, trees){})`
+
+Build a forest of trees from the training set (data, features, target).
+
+**parameters**
+
+- **`data`**: training data array
+- **`features`**: if `null` it defaults to all features except the target, otherwise it only uses the array of features passed
+- **`target`**: the target feature
+
+**example**
+```javascript
+var rf = new RandomForestClassifier({
+    n_estimators: 20
+});
+
+rf.fit(data, ["length", "width"], "species", function(err, trees){
+  console.log(JSON.stringify(trees, null, 4));
+});
+```
+
+##### `rf.predict(data, trees)`
+
+The predicted class of an input sample is computed as the majority prediction of the trees in the forest.
+
+**parameters**
+
+- **`data`**: input sample
+- **`trees`**: the forest of trees outputted by `rf.fit`
+
+**example**
+```javascript
+var rf = new RandomForestClassifier({
+    n_estimators: 20
+});
+
+rf.fit(data, ["length", "width"], "species", function(err, trees){
+
+  var pred = rf.predict(sample_data, trees);
+
+  console.log(pred);
+  // pred = ["virginica", "setosa"]
+});
+```
+
+
+
