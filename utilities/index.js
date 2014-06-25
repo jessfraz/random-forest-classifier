@@ -1,20 +1,47 @@
 var _ = require("underscore");
 
-var Gain = function(data, feature, y){
+Array.prototype.AllValuesSame = function(){
+    if (this.length > 0) {
+        for (var i = 1; i < this.length; i++){
+            if (this[i] !== this[0]){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+var Gain = function(data, feature, y, num_tries){
     var attribute_values = _.pluck(data, feature),
         entropy = Entropy(_.pluck(data, y)),
         size = data.length,
         feature_type = GetType(data[0][feature]);
 
     if (feature_type == "float" || feature_type == "int"){
+        var min = _.min(attribute_values);
+        var max = _.max(attribute_values);
+
         var entropies = attribute_values.map(function(n){
-            var cutf = parseFloat(n),
-                _gain = entropy - ConditionalEntropy(data, feature, y, cutf);
-            return {
-                feature: feature,
-                gain: _gain,
-                cut: cutf
-            };
+            var sub_entropies = [];
+
+            // var cutf = parseFloat(n),
+            //     _gain = entropy - ConditionalEntropy(data, feature, y, cutf);
+            // sub_entropies.push({
+            //     feature: feature,
+            //     gain: _gain,
+            //     cut: cutf
+            // });
+
+            for (var i=0; i < num_tries; i++) {
+                var cutf = RandomFloat(min, max),
+                    _gain = entropy - ConditionalEntropy(data, feature, y, cutf);
+                sub_entropies.push({
+                    feature: feature,
+                    gain: _gain,
+                    cut: cutf
+                });
+            }
+            return _.max(sub_entropies, function(e){return e.gain});
         });
         return _.max(entropies, function(e){return e.gain});
     } else {
@@ -32,14 +59,19 @@ var Gain = function(data, feature, y){
     }
 };
 
-var MaxGain = function(data, features, y){
+var MaxGain = function(data, features, y, num_tries){
   var gains = [];
-  for(var i=0; i < features.length; i++) {
-    gains.push(Gain(data, features[i], y));
+  for (var i=0; i < features.length; i++) {
+    gains.push(Gain(data, features[i], y, num_tries));
   }
-  return _.max(gains,function(e){
-    return e.gain;
-  });
+
+  if (_.pluck(gains, 'gain').AllValuesSame){
+    return gains[RandomInt(0, gains.length)];
+  } else {
+    return _.max(gains,function(e){
+      return e.gain;
+    });
+  }
 };
 
 var GetDominate = function(vals){
@@ -100,7 +132,7 @@ var Average = function(v){
 }
 
 
-var C45 = function(data, features, y, major_label){
+var C45 = function(data, features, y, major_label, num_tries){
     var tree = {};
     var y_values = _.pluck(data, y);
 
@@ -140,7 +172,7 @@ var C45 = function(data, features, y, major_label){
         features = _.reject(_.keys(data[0]), function(f){ return f == y; });
     }
 
-    var best_feature_data = MaxGain(data, features, y),
+    var best_feature_data = MaxGain(data, features, y, num_tries),
         best_feature = best_feature_data.feature;
     var feature_remains = _.without(features, best_feature);
     var best_feature_type = GetType(data[0][best_feature]);
@@ -165,7 +197,7 @@ var C45 = function(data, features, y, major_label){
             alias: '>' + tree.cut.toString() + RID(),
             type: "feature_value"
         };
-        child_node_r.child = C45(rightCutData, feature_remains, y, major_label);
+        child_node_r.child = C45(rightCutData, feature_remains, y, major_label, num_tries);
         tree.vals.push(child_node_r);
 
         var leftCutData = data.filter(function(x){return x[best_feature] <= best_feature_data.cut});
@@ -174,7 +206,7 @@ var C45 = function(data, features, y, major_label){
             alias: '<=' + tree.cut.toString() + RID(),
             type: "feature_value"
         };
-        child_node_l.child = C45(leftCutData, feature_remains, y, major_label);
+        child_node_l.child = C45(leftCutData, feature_remains, y, major_label, num_tries);
         tree.vals.push(child_node_l);
     } else {
         var possibilities = possibilities = _.unique(_.pluck(data, best_feature));
@@ -197,7 +229,7 @@ var C45 = function(data, features, y, major_label){
             if (feature_remains.length == 0){
                 feature_remains = true;
             }
-            branch.child = C45(data_modified, feature_remains, y, major_label);
+            branch.child = C45(data_modified, feature_remains, y, major_label, num_tries);
 
             return branch;
         });
@@ -300,6 +332,16 @@ var d3ifyModel = function(trees){
         models[i] = recursived3ifyModel(models[i]);
     }
     return models
+};
+
+
+var RandomFloat = function (a, b) {
+    return Math.random()*(b-a)+a;
+};
+
+
+var RandomInt = function (a, b) {
+    return Math.floor(Math.random()*(b-a)+a);
 };
 
 

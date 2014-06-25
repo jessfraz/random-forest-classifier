@@ -53,12 +53,14 @@ var DecisionTreeClassifier = function(params) {
     this.splitter = params.splitter || 'best';
     this.min_samples_split = params.min_samples_split || 2;
     this.min_samples_leaf = params.min_samples_leaf || 1;
+    //this.max_depth = params.max_depth || 5;
+    this.num_tries = params.num_tries || 10;
 };
 
 DecisionTreeClassifier.prototype = {
     fit: function(data, features, y) {
       var major_label = utils.GetDominate(_.pluck(data, y));
-      return utils.C45(data, features, y, major_label);
+      return utils.C45(data, features, y, major_label, this.num_tries);
     },
     predict: function(sample) {
         var root = this.model;

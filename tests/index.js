@@ -21,10 +21,10 @@ var testdata = [{
     //"species":"setosa"
   },
   {
-    "length":5,
-    "width":2.3,
-    "petal_length":3.3,
-    "petal_width":1,
+    "length":5.8,
+    "width":2.6,
+    "petal_length":4,
+    "petal_width":1.2,
     //"species":"versicolor"
   },
   {

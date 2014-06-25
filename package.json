@@ -1,6 +1,6 @@
 {
   "name": "random-forest-classifier",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "A random forest classifier. A random forest is a meta estimator that fits a number of decision tree classifiers on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting.",
   "main": "index.js",
   "scripts": {
