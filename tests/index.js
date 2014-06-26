@@ -1,54 +1,7 @@
 var fs = require('fs'),
+    _ = require('underscore')
     file = __dirname + '/iris.json',
     RandomForestClassifier = require('../index.js').RandomForestClassifier;
-
-// 0 == setosa
-// 1 == versicolor
-// 2 == virginica
-
-var testdata = [{
-    "length":6.9,
-    "width":3.1,
-    "petal_length":5.1,
-    "petal_width":2.3,
-    //"species":"virginica"
-  },
-  {
-    "length":5.1,
-    "width":3.8,
-    "petal_length":1.5,
-    "petal_width":0.3,
-    //"species":"setosa"
-  },
-  {
-    "length":5.8,
-    "width":2.6,
-    "petal_length":4,
-    "petal_width":1.2,
-    //"species":"versicolor"
-  },
-  {
-    "length":6.2,
-    "width":3.4,
-    "petal_length":5.4,
-    "petal_width":2.3,
-    //"species":"virginica"
-  },
-  {
-    "length":4.9,
-    "width":3,
-    "petal_length":1.4,
-    "petal_width":0.2,
-    //"species":"setosa"
-  },
-  {
-    "length":4.7,
-    "width":3.2,
-    "petal_length":1.3,
-    "petal_width":0.2,
-    //"species":"setosa"
-  }
-];
 
 
 fs.readFile(file, 'utf8', function (err, data) {
@@ -58,14 +11,31 @@ fs.readFile(file, 'utf8', function (err, data) {
 
     data = JSON.parse(data);
 
+    // remove ten items for the testdata
+    var testdata = [];
+    for (var i=0; i < 10; i++){
+        var ran_num = Math.floor(Math.random() * (data.length - 0 + 1));
+        testdata.push(data[ran_num]);
+        data = _.without(data, data[ran_num]);
+    }
+
     var rf = new RandomForestClassifier({
-      n_estimators: 20
+      n_estimators: 10
     });
 
     rf.fit(data, null, "species", function(err, trees){
         //console.log(trees);
         //console.log(JSON.stringify(trees, null, 4));
+        var expected =  _.pluck(testdata, "species");
         var pred = rf.predict(testdata, trees);
-        console.log(pred);
+        console.log("outcome:", pred);
+        console.log("expected: ", expected);
+        var correct = 0;
+        for (var i=0; i< pred.length; i++){
+            if (pred[i]==expected[i]){
+                correct++;
+            }
+        }
+        console.log(correct + "/" + pred.length, (correct/pred.length)*100 + "%", "accurate");
   });
 });
