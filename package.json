@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jfrazelle/random-forest-classifier"
+    "url": "https://github.com/jessfraz/random-forest-classifier"
   },
   "keywords": [
     "random forest",
@@ -18,9 +18,9 @@
   "author": "Jessica Frazelle",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jfrazelle/random-forest-classifier/issues"
+    "url": "https://github.com/jessfraz/random-forest-classifier/issues"
   },
-  "homepage": "https://github.com/jfrazelle/random-forest-classifier",
+  "homepage": "https://github.com/jessfraz/random-forest-classifier",
   "dependencies": {
     "async": "^0.9.0",
     "underscore": "^1.6.0"
