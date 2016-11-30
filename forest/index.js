@@ -98,7 +98,7 @@ RandomForestClassifier.prototype = {
         for (var i=0; i < data.length ;i++) {
             var dec = [];
             for (var j=0; j < this.n_estimators; j++){
-                dec.push(trees[i].predict(data[i]));
+                dec.push(trees[j].predict(data[i]));
             }
             if (utils.GetType(dec[0]) == "string"){
                 probabilities[i] = utils.GetDominate(dec);
