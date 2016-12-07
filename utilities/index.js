@@ -113,7 +113,7 @@ var RID = function(){
 };
 
 var GetType = function(input) {
-    var m = (/[\d]+(\.[\d]+)?/).exec(input);
+    var m = (/^[\d]+(\.[\d]+)?$/).exec(input);
     if (m) {
        // Check if there is a decimal place
         if (m[1]) {
